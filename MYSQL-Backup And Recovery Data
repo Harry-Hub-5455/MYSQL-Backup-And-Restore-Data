@@ -1,0 +1,123 @@
+MySQL Backup and Recovery:
+1.3 Example Backup and Recovery Strategy · 
+1.3.1 Establishing a Backup Policy · 
+1.4 Using mysqldump for Backups · 
+1.4.1 Dumping Data 
+
+If you're storing anything in MySQL databases that you do not want to lose, it is very important to make regular backups of your data to protect it from loss. This tutorial will show you two easy ways to backup and restore the data in your MySQL database. You can also use this process to move your data to a new web server.
+
+Back up From the Command Line (using mysqldump)
+
+Back up your MySQL Database with Compress
+
+Restoring your MySQL Database
+
+Backing Up and Restoring using PHPMyAdmin
+
+
+### Back up From the Command Line (using mysqldump)
+
+If you have shell or telnet access to your web server, you can backup your MySQL data by using the mysqldump command. This command connects to the MySQL server and creates an SQL dump file. The dump file contains the SQL statements necessary to re-create the database. Here is the proper syntax:
+
+`$ mysqldump --opt -u [uname] -p[pass] [dbname] > [backupfile.sql]`
+
+`[uname]` Your database username
+ 
+`[pass]` The password for your database (note there is no space between -p and the password)
+
+`[dbname]` The name of your database
+
+`[backupfile.sql]` The filename for your database backup
+
+`[--opt]` The mysqldump option
+
+For example, to backup a database named 'Tutorials' with the username 'root' and with no password to a file tut_backup.sql, you should accomplish this command:
+
+`$ mysqldump -u root -p Tutorials > tut_backup.sql`
+
+This command will backup the 'Tutorials' database into a file called tut_backup.sql which will contain all the SQL statements needed to re-create the database.
+
+With mysqldump command you can specify certain tables of your database you want to backup. For example, to back up only php_tutorials and asp_tutorials tables from the 'Tutorials' database accomplish the command below. Each table name has to be separated by space.
+
+`$ mysqldump -u root -p Tutorials php_tutorials asp_tutorials > tut_backup.sql`
+
+Sometimes it is necessary to back up more that one database at once. In this case you can use the --database option followed by the list of databases you would like to backup. Each database name has to be separated by space.
+
+`$ mysqldump -u root -p --databases Tutorials Articles Comments > content_backup.sql`
+
+If you want to back up all the databases in the server at one time you should use the --all-databases option. It tells MySQL to dump all the databases it has in storage.
+
+`$ mysqldump -u root -p --all-databases > alldb_backup.sql`
+
+The mysqldump command has also some other useful options:
+
+*  --add-drop-table: Tells MySQL to add a DROP TABLE statement before each CREATE TABLE in the dump.
+
+*  --no-data: Dumps only the database structure, not the contents.
+
+*  --add-locks: Adds the LOCK TABLES and UNLOCK TABLES statements you can see in the dump file.
+
+The mysqldump command has advantages and disadvantages. The advantages of using mysqldump are that it is simple to use and it takes care of table locking issues for you. The disadvantage is that the command locks tables. If the size of your tables is very big mysqldump can lock out users for a long period of time.
+
+### Back up your MySQL Database with Compress
+
+If your mysql database is very big, you might want to compress the output of mysqldump. Just use the mysql backup command below and pipe the output to gzip, then you will get the output as gzip file.
+
+`$ mysqldump -u [uname] -p[pass] [dbname] | gzip -9 > [backupfile.sql.gz]`
+
+If you want to extract the .gz file, use the command below:
+
+`$ gunzip [backupfile.sql.gz]`
+
+## Restoring your MySQL Database
+
+Above we backup the Tutorials database into tut_backup.sql file. To re-create the Tutorials database you should follow two steps:
+
+Create an appropriately named database on the target machine
+Load the file using the mysql command:
+
+`$ mysql -u [uname] -p[pass] [db_to_restore] < [backupfile.sql]`
+
+Have a look how you can restore your *tut_backup.sql* file to the Tutorials database.
+
+`$ mysql -u root -p Tutorials < tut_backup.sql`
+
+To restore compressed backup files you can do the following:
+
+`gunzip < [backupfile.sql.gz] | mysql -u [uname] -p[pass] [dbname]`
+
+If you need to restore a database that already exists, you'll need to use *mysqlimport* command. The syntax for *mysqlimport* is as follows:
+
+`mysqlimport -u [uname] -p[pass] [dbname] [backupfile.sql]`
+
+### Backing Up and Restoring using PHPMyAdmin
+
+It is assumed that you have phpMyAdmin installed since a lot of web service providers use it. To backup your MySQL database using PHPMyAdmin just follow a couple of steps:
+
+* Open phpMyAdmin.
+
+* Select your database by clicking the database name in the list on the left of the screen.
+
+* Click the Export link. This should bring up a new screen that says View dump of database (or something similar).
+
+* In the Export area, click the Select All link to choose all of the tables in your database.
+
+* In the SQL options area, click the right options.
+
+* Click on the Save as file option and the corresponding compression option and then click the 'Go' button. A dialog box should appear prompting you to save the file locally.
+
+
+
+Restoring your database is easy as well as backing it up. Make the following:
+
+
+
+* Open phpMyAdmin.
+
+* Create an appropriately named database and select it by clicking the database name in the list on the left of the screen. If you would like to rewrite the backup over an existing database then click on the database name, select all the check boxes next to the table names and select Drop to delete all existing tables in the database.
+
+* Click the SQL link. This should bring up a new screen where you can either type in SQL commands, or upload your SQL file.
+
+* Use the browse button to find the database file.
+
+* Click Go button. This will upload the backup, execute the SQL commands and re-create your database.
